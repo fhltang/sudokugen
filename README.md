@@ -6,5 +6,5 @@ Sudoku Board Generator
 ```
 git clone https://github.com/fhltang/sudokugen.git
 cd sudokugen
-go run gen.go
+go run cmd/cli/cli.go
 ```

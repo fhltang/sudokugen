@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/fhltang/sudokugen/internal/generator"
@@ -12,7 +13,21 @@ import (
 )
 
 func generateBoard(w http.ResponseWriter, r *http.Request) {
-	board, err := generator.Generate(50, 1)
+	r.ParseForm()
+	blanks := 0
+	if blanksString, ok := r.PostForm["blanks"]; ok && len(blanksString) == 1 {
+		v, err := strconv.Atoi(blanksString[0])
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		if v < 0 || v > 81 {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		blanks = v
+	}
+	board, err := generator.Generate(blanks, 1)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -116,6 +131,8 @@ func renderForm(w http.ResponseWriter, r *http.Request) {
 <body>
 <h1>Sudoku Generator</h1>
 <form method="POST">
+<label for="blanks">Blanks</label>
+<input type="text" name="blanks" value="45"/>
 <input type="submit" value="Generate">
 </form>
 </body>

@@ -3,6 +3,7 @@ package sudoku
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -200,3 +201,22 @@ func (b Board) Full() bool {
 	}
 	return true
 }
+
+func (b *Board) UnmarshalJSON(data []byte) error {
+	var s string
+	err := json.Unmarshal(data, &s)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal data %s: %v", data, err)
+	}
+	parsed, err := Parse(strings.NewReader(s))
+	if err != nil {
+		return fmt.Errorf("Failed to unmarshal sudoku board: %v", err)
+	}
+	b.Square = parsed.Square
+	return nil
+}
+
+func (b Board) MarshalJSON() ([]byte, error) {
+	return json.Marshal(b.Text())
+}
+

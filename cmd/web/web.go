@@ -135,6 +135,10 @@ func renderForm(w http.ResponseWriter, r *http.Request) {
 <input type="text" name="blanks" value="45"/>
 <input type="submit" value="Generate">
 </form>
+
+<p>
+Source code: <a href="https://github.com/fhltang/sudokugen">github.com/fhltang/sudokugen</a>
+</p>
 </body>
 </html>`)
 }

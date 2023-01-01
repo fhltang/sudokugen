@@ -15,8 +15,10 @@ type SymbolIt struct {
 
 func (it *SymbolIt) Symbols(syms *sudoku.Set) chan sudoku.Symbol {
 	symbols := []sudoku.Symbol{}
-	for i := 1; i <= 9; i++ {
-		s := sudoku.Symbol(i)
+	for _, s := range []sudoku.Symbol{
+		sudoku.One, sudoku.Two, sudoku.Three,
+		sudoku.Four, sudoku.Five, sudoku.Six,
+		sudoku.Seven, sudoku.Eight, sudoku.Nine} {
 		if syms.Has(s) {
 			symbols = append(symbols, s)
 		}

@@ -12,42 +12,75 @@ import (
 type Symbol int
 
 const (
-	None Symbol = iota // Not really a symbol
-	One
-	Two
-	Three
-	Four
-	Five
-	Six
-	Seven
-	Eight
-	Nine
+	None Symbol = 0 // Not really a symbol
+	One Symbol = 1
+	Two Symbol = 2
+	Three Symbol = 4
+	Four Symbol = 8
+	Five Symbol = 16
+	Six Symbol = 32
+	Seven Symbol = 64
+	Eight Symbol = 128
+	Nine Symbol = 256
 )
+
+func FromByte(b byte) Symbol {
+	if b < byte('1') {
+		return None
+	}
+	if b > byte('9') {
+		return None
+	}
+	syms := []Symbol{One, Two, Three, Four, Five, Six, Seven, Eight, Nine}
+	return syms[b - '1']
+}
+
+func (s Symbol) Byte() byte {
+	switch s {
+	case One:
+		return '1'
+	case Two:
+		return '2'
+	case Three:
+		return '3'
+	case Four:
+		return '4'
+	case Five:
+		return '5'
+	case Six:
+		return '6'
+	case Seven:
+		return '7'
+	case Eight:
+		return '8'
+	case Nine:
+		return '9'
+	default:
+		return '.'
+	}
+}
 
 // Set is a set of symbols
 type Set struct {
-	elements map[Symbol]int
+	bitmap int
 }
 
 func Empty() *Set {
-	return &Set{make(map[Symbol]int)}
+	return &Set{0}
 }
 
 func All() *Set {
-	s := Empty();
-	for i := 1; i <= 9; i++ {
-		s.Add(Symbol(i))
-	}
-	return s
+	return &Set{511}
 }
 
-func (s *Set) Add(sym Symbol) {
-	s.elements[sym] = 0
+func (s *Set) Add(sym Symbol) bool {
+	before := s.bitmap
+	s.bitmap = s.bitmap | int(sym)
+	return before == s.bitmap
 }
 
 func (s *Set) Has(sym Symbol) bool {
-	_, found := s.elements[sym]
-	return found
+	return (s.bitmap & int(sym)) == int(sym)
 }
 
 // Board is a representation of a 9x9 sudoku board
@@ -93,7 +126,7 @@ func Parse(r io.Reader) (*Board, error) {
 			if b > byte('9') {
 				return nil, fmt.Errorf("Unexpected symbol %s", []byte{b})
 			}
-			board.Square[r][c] = Symbol(b - '0')
+			board.Square[r][c] = FromByte(b)
 		}
 	}
 	return board, nil
@@ -108,7 +141,7 @@ func (b Board) Text() string {
 				builder.WriteByte('.')
 				continue
 			}
-			builder.WriteByte(byte('0' + sym))
+			builder.WriteByte(sym.Byte())
 		}
 		builder.WriteByte('\n')
 	}
@@ -122,10 +155,9 @@ func (b Board) rowValid(r int) bool {
 		if s == None {
 			continue
 		}
-		if symbols.Has(s) {
+		if symbols.Add(s) {
 			return false
 		}
-		symbols.Add(s)
 	}
 	return true
 }
@@ -137,10 +169,9 @@ func (b Board) columnValid(c int) bool {
 		if s == None {
 			continue
 		}
-		if symbols.Has(s) {
+		if symbols.Add(s) {
 			return false
 		}
-		symbols.Add(s)
 	}
 	return true
 }
@@ -155,10 +186,9 @@ func (b Board) subBoardValid(sbr, sbc int) bool {
 			if s == None {
 				continue
 			}
-			if symbols.Has(s) {
+			if symbols.Add(s) {
 				return false
 			}
-			symbols.Add(s)
 		}
 	}
 	return true

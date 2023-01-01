@@ -65,7 +65,7 @@ func renderBoard(query string, w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(table, "<td class='%s'>", cellStyle(r, c))
 			sym := q.Board.Square[r][c]
 			if sym != sudoku.None {
-				table.WriteByte(byte('0' + sym))
+				table.WriteByte(sym.Byte())
 			}
 			table.WriteString("</td>")
 		}

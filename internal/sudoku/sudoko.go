@@ -186,6 +186,21 @@ func (b Board) Valid() bool {
 	return true
 }
 
+// StillValid determines if a valid board is still valid after changing square (r, c)
+func (b Board) StillValid(r, c int) bool {
+	if !b.rowValid(r) {
+		return false
+	}
+	if !b.columnValid(c) {
+		return false
+	}
+	sbr, sbc := r / 3, c / 3
+	if !b.subBoardValid(sbr, sbc) {
+		return false
+	}
+	return true
+}
+
 func (b Board) Clone() *Board {
 	board := b
 	return &board

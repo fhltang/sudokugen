@@ -90,6 +90,10 @@ func New() *Solver {
 }
 
 func (s *Solver) Solve(board *sudoku.Board, limit int) {
+	if !board.Valid() {
+		return
+	}
+
 	coord := s.pathGenerator.Path(board)
 
 	s.internalSolve(board, limit, coord)
@@ -115,7 +119,7 @@ func (s *Solver) internalSolve(b *sudoku.Board, limit int, coord *Coord) {
 	symbols := sudoku.All()
 	for sym := range s.iterator.Symbols(symbols) {
 		b.Square[coord.Row][coord.Col] = sym
-		if !b.Valid() {
+		if !b.StillValid(coord.Row, coord.Col) {
 			continue
 		}
 

@@ -1,7 +1,19 @@
 # sudokugen
 Sudoku Board Generator
 
-# To run
+# Web Demo
+
+View a live a demo at https://sudokuogen.francistang.com
+
+# Deploy to Cloud Run
+
+```
+git clone https://github.com/fhltang/sudokugen.git
+cd sudokugen
+gcloud run deploy sudokugen --region europe-west1 --source ./
+```
+
+# Command Line Interface
 
 ```
 git clone https://github.com/fhltang/sudokugen.git

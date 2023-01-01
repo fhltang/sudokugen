@@ -3,7 +3,7 @@ Sudoku Board Generator
 
 # Web Demo
 
-View a live a demo at https://sudokuogen.francistang.com
+View a live a demo at https://sudokugen.francistang.com
 
 # Deploy to Cloud Run
 

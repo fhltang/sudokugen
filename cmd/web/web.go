@@ -18,10 +18,12 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 	if blanksString, ok := r.PostForm["blanks"]; ok && len(blanksString) == 1 {
 		v, err := strconv.Atoi(blanksString[0])
 		if err != nil {
+			log.Printf("Failed to parse field value: %v", blanksString[0])
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		if v < 0 || v > 81 {
+			log.Printf("Request blanks %d out of range", v)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -29,6 +31,7 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 	}
 	board, err := generator.Generate(blanks, 1)
 	if err != nil {
+		log.Printf("Board generation failed: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

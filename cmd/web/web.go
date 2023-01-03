@@ -75,6 +75,8 @@ func renderBoard(query string, w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(table, "</tr>")
 	}
 	fmt.Fprintln(table, "</table>")
+
+	qrcode := fmt.Sprintf("/qrcode?q=%s", query)
 	
 	fmt.Fprintf(w, `<html>
 <head>
@@ -122,8 +124,10 @@ table.board {
 <body>
 <a href="/">New board</a>
 %s
+
+<img src="%s"/>
 </body>
-</html>`, table.String())
+</html>`, table.String(), qrcode)
 }
 
 func renderForm(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +166,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	http.HandleFunc("/qrcode", web.QrcodeHandler)
 	http.HandleFunc("/", handler)
 	log.Println("Starting web server...")
 	log.Fatal(http.ListenAndServe(":8080", nil))

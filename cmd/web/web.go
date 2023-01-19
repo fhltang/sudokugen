@@ -12,6 +12,13 @@ import (
 	"github.com/fhltang/sudokugen/internal/web"
 )
 
+const (
+	// Upper bound on blanks. Theoretical limit is 64 but as we
+	// approach the limit, the computation cost of generating the
+	// board becomes excessive.
+	blanksLimit int = 55
+)
+
 func generateBoard(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	blanks := 0
@@ -19,12 +26,17 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 		v, err := strconv.Atoi(blanksString[0])
 		if err != nil {
 			log.Printf("Failed to parse field value: %v", blanksString[0])
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("Value \"%s\" cannot be parsed as a integer", blanksString[0]), http.StatusBadRequest)
 			return
 		}
-		if v < 0 || v > 81 {
-			log.Printf("Request blanks %d out of range", v)
-			w.WriteHeader(http.StatusBadRequest)
+		if v < 0 {
+			log.Printf("Requested blanks %d is negative", v)
+			http.Error(w, "Blanks cannot be negative", http.StatusBadRequest)
+			return
+		}
+		if v > blanksLimit {
+			log.Printf("Requested blanks %d is too large", v)
+			http.Error(w, fmt.Sprintf("Blanks is currently limited to at most %d", blanksLimit), http.StatusBadRequest)
 			return
 		}
 		blanks = v
@@ -32,14 +44,16 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 	board, err := generator.Generate(blanks, 1)
 	if err != nil {
 		log.Printf("Board generation failed: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, "Failed to generate a puzzle board. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
 	q := web.Query{*board}
 	encoded, err := q.Encode()
 	if err != nil {
-		log.Fatalf("failed to encode state: %v", err)
+		log.Printf("failed to encode state: %v", err)
+		http.Error(w, "Internal error. Congratulations, you have found a bug.", http.StatusInternalServerError)
+		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("?q=%s", encoded), http.StatusSeeOther)
 }

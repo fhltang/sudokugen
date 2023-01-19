@@ -48,7 +48,7 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	q := web.Query{*board}
+	q := web.Query{Board: *board}
 	encoded, err := q.Encode()
 	if err != nil {
 		log.Printf("failed to encode state: %v", err)
@@ -60,11 +60,11 @@ func generateBoard(w http.ResponseWriter, r *http.Request) {
 
 func cellStyle(r, c int) string {
 	styles := [][]string{
-		[]string{"tl", "t", "tr"},
-		[]string{"l", "c", "r"},
-		[]string{"bl", "b", "br"},
+		{"tl", "t", "tr"},
+		{"l", "c", "r"},
+		{"bl", "b", "br"},
 	}
-	return styles[r % 3][c % 3]
+	return styles[r%3][c%3]
 }
 
 func renderBoard(query string, w http.ResponseWriter, r *http.Request) {
@@ -91,7 +91,7 @@ func renderBoard(query string, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(table, "</table>")
 
 	qrcode := fmt.Sprintf("/qrcode?q=%s", query)
-	
+
 	fmt.Fprintf(w, `<html>
 <head>
 <title>Sudoku Generator</title>
